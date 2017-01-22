@@ -1,13 +1,13 @@
 {
-  "name": "the-elm-architecture",
-  "version": "1.0.0",
+  "name": "elm-spa-starter",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --content-base ./build"
   },
-  "author": "",
+  "author": "Chase Ries",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^0.25.0",
