@@ -1,76 +1,76 @@
 module Routing exposing (..)
 
-import Dict
+import List
+import Dict exposing (Dict)
 import Task exposing (Task)
 import Navigation
 import UrlParser
 import Session exposing (Session)
 
 type Page
-  = Restricted RPage
-  | Unrestricted UPage
-
-type UPage
   = Home
+  | About
   | NotFound
-
-type RPage
-  = About
+  | Unauthorized
 
 type alias Url =
   String
+
+restrictedPages : List Page
+restrictedPages =
+  [ About ]
+
+unrestrictedPages : List Page
+unrestrictedPages =
+  [ Home
+  , NotFound
+  , Unauthorized 
+  ]
+
+getPageWithAuth : Session -> Page -> Page
+getPageWithAuth session page =
+  case session of
+    Session.Anon ->
+      case List.member page restrictedPages of
+        True ->
+          Unauthorized
+        False ->
+          page
+    _ ->
+      page
+
+access : Session -> Page -> Cmd msg
+access session page =
+  getPageWithAuth session page
+    |> pageToUrl
+    |> Navigation.newUrl
 
 requestLoggedInStatus : (Result x Bool -> msg) -> Cmd msg
 requestLoggedInStatus handler =
   Task.attempt handler (Task.succeed True) 
 
-goTo : Session -> Page -> Cmd msg
-goTo session piw =
-  let 
-    access =
-      pageToUrl piw |> Navigation.newUrl
-    deny =
-      pageToUrl (Unrestricted NotFound) |> Navigation.newUrl
-  in
-  case piw of
-    Unrestricted page  ->
-      access
-    Restricted page  ->
-      case session of
-        Session.Active _ ->
-          access
-        Session.Anon ->
-          deny
-
 pageToUrl : Page -> Url
-pageToUrl piw =
-  case piw of
-    Unrestricted page -> 
-      case page of
-        Home -> "/"
-        NotFound -> "/404"
-    Restricted page ->
-      case page of
-        About -> "/about"
+pageToUrl page =
+  case page of
+    Home -> "/"
+    NotFound -> "/404"
+    About -> "/about"
+    Unauthorized -> "/unauthorized"
+
 
 urlParser : UrlParser.Parser (Page -> a) a
 urlParser =
   UrlParser.oneOf
-    [ UrlParser.map home (UrlParser.s "") 
-    , UrlParser.map about (UrlParser.s "about")
-    , UrlParser.map notFound (UrlParser.s "404")
+    [ UrlParser.map Home (UrlParser.s "") 
+    , UrlParser.map About (UrlParser.s "about")
+    , UrlParser.map NotFound (UrlParser.s "404")
+    , UrlParser.map Unauthorized (UrlParser.s "unauthorized")
     ]
 
 locationToPage : Navigation.Location -> Page
 locationToPage loc =
   case UrlParser.parsePath urlParser loc of
     Nothing ->
-      notFound
+      NotFound
     Just page ->
       page
-
--- Routes
-home = Unrestricted Home
-about = Restricted About
-notFound = Unrestricted NotFound
-

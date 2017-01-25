@@ -5,26 +5,32 @@ import Html exposing (..)
 import Pages.Home as HomePage
 import Pages.About as AboutPage
 import Pages.NotFound as NotFoundPage
+import Pages.Unauthorized as UnauthorizedPage
 import Routing
-import Task
+import Task exposing (Task)
 import Api.Auth exposing (..)
 
+import Session exposing (Session)
 import Skeleton
 
 
 type alias Model =
   { page : Routing.Page 
+  , session : Session
   , homePageModel : HomePage.Model
   , aboutPageModel : AboutPage.Model
   , notFoundPageModel : NotFoundPage.Model
+  , unauthorizedModel : UnauthorizedPage.Model
   }
 
 initialModel : Model
 initialModel =
-  { page = Routing.home
+  { page = Routing.Home
+  , session = Session.Anon
   , homePageModel = HomePage.initialModel
   , aboutPageModel = AboutPage.initialModel
   , notFoundPageModel = NotFoundPage.initialModel
+  , unauthorizedModel = UnauthorizedPage.initialModel
   }
 
 type Msg
@@ -32,6 +38,7 @@ type Msg
   | HomePageMsg HomePage.Msg
   | AboutPageMsg AboutPage.Msg
   | NotFoundPageMsg NotFoundPage.Msg
+  | UnauthorizedPageMsg UnauthorizedPage.Msg
   | IsLoggedIn Msg
   | NoOp
 
@@ -47,12 +54,14 @@ view model =
 selectView : Model -> Html Msg
 selectView model =
   case model.page of
-    (Routing.Unrestricted Routing.Home)->
+    (Routing.Home)->
       Html.map HomePageMsg (HomePage.view model.homePageModel)
-    (Routing.Restricted Routing.About) ->
+    (Routing.About) ->
       Html.map AboutPageMsg (AboutPage.view model.aboutPageModel)
-    (Routing.Unrestricted Routing.NotFound) ->
+    (Routing.NotFound) ->
       Html.map NotFoundPageMsg (NotFoundPage.view model.notFoundPageModel)
+    (Routing.Unauthorized) ->
+      Html.map UnauthorizedPageMsg (UnauthorizedPage.view model.unauthorizedModel)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
