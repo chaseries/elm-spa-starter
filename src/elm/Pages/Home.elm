@@ -20,4 +20,4 @@ view : Model -> Html Msg
 view model = 
   div
     []
-    [ text "Welcome to the home page. An Elm SPA starter app." ]
+    [ text "Welcome to the home page of an Elm SPA starter app." ]

@@ -1,4 +1,4 @@
-module Pages.About exposing (Msg, Model, initialModel, view)
+module Pages.Dashboard exposing (Msg, Model, initialModel, view)
 
 import Html exposing (..)
 
@@ -20,4 +20,4 @@ view : Model -> Html Msg
 view model =
   div
     []
-    [ text "About the Elm SPA starter." ]
+    [ text "An dashboard page." ]

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --content-base ./build",
-    "build": "webpack --watch --watch-poll"
+    "build": "webpack --watch --watch-poll",
+    "app": "npm run ./run.js"
   },
   "author": "Chase Ries",
   "license": "ISC",

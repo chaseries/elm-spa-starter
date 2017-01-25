@@ -5,11 +5,12 @@ import Dict exposing (Dict)
 import Task exposing (Task)
 import Navigation
 import UrlParser
+
 import Session exposing (Session)
 
 type Page
   = Home
-  | About
+  | Dashboard
   | NotFound
   | Unauthorized
 
@@ -18,7 +19,8 @@ type alias Url =
 
 restrictedPages : List Page
 restrictedPages =
-  [ About ]
+  [ Dashboard 
+  ]
 
 unrestrictedPages : List Page
 unrestrictedPages =
@@ -52,25 +54,28 @@ requestLoggedInStatus handler =
 pageToUrl : Page -> Url
 pageToUrl page =
   case page of
-    Home -> "/"
-    NotFound -> "/404"
-    About -> "/about"
-    Unauthorized -> "/unauthorized"
-
+    Home ->
+      "/"
+    Dashboard ->
+      "/dashboard"
+    NotFound ->
+      "/404"
+    Unauthorized ->
+      "/unauthorized"
 
 urlParser : UrlParser.Parser (Page -> a) a
 urlParser =
   UrlParser.oneOf
     [ UrlParser.map Home (UrlParser.s "") 
-    , UrlParser.map About (UrlParser.s "about")
+    , UrlParser.map Dashboard (UrlParser.s "dashboard")
     , UrlParser.map NotFound (UrlParser.s "404")
     , UrlParser.map Unauthorized (UrlParser.s "unauthorized")
     ]
 
-locationToPage : Navigation.Location -> Page
-locationToPage loc =
+locationToPage : Session -> Navigation.Location -> Page
+locationToPage session loc =
   case UrlParser.parsePath urlParser loc of
     Nothing ->
       NotFound
     Just page ->
-      page
+      getPageWithAuth session page
